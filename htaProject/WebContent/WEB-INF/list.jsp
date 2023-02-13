@@ -9,27 +9,33 @@
 
 	<link rel="icon" href="./images/favicon.png" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	
+	<!-- 비동기 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 
 	<!-- Google Font -->
-
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700|Raleway:400,300,500,700,600' rel='stylesheet' type='text/css'>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css" type="text/css">
-
-
+	
+	<!-- 기본 홈페이지 템플릿 css -->
     <link rel="stylesheet" href="../css/style.css">
-
     <link rel="stylesheet" href="../css/responsive.css">
     
-	<!-- --------------------------------------------------- -->
-	 <!-- Core theme CSS (includes Bootstrap)-->
+	<!-- 리스트 템플릿 css-->
     <link href="../css/liststyles.css" rel="stylesheet" />
     
     <!-- 이미지 클릭시 확대 관련 import  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/css/lightbox.min.css">
-    
+
+<style>
+#logout_btn {
+	display: none;
+}
+</style>
+
 </head>
-<body>
+<body onload="validLogin()">
 	
 	<div class="top-bar">
 
@@ -52,9 +58,11 @@
                     <div class="action pull-right">
 
                         <ul>
-                            <li><a href="???"><i class="fa fa-user"></i>&nbsp로그인</a></li>
-                            <li><a href="???"><i class="fa fa-lock"></i>&nbsp회원가입</a></li>
-                            <li><a href="???"><i class="fa fa-shopping-bag"></i>&nbsp장바구니</a></li>
+
+                            <li><a id="login_btn" href="login.html"><i class="fa fa-user"></i>&nbsp로그인/회원가입</a></li>
+							<li><a id="logout_btn" href="${pageContext.request.contextPath}/userinfo/sessionOut"><i class="fa fa-user"></i>&nbsp로그아웃</a></li>
+							<li><a id="shoppingCart" href="${pageContext.request.contextPath}/shoppingCart/showCart?userId=${sessionScope.userId }"><i class="fa fa-shopping-bag"></i>&nbsp장바구니</a></li>
+
                         </ul>
                     </div>
                 </div>
@@ -62,20 +70,38 @@
             </div>
         </div>
     </div>
-
+    
+    
+<script type="text/javascript">
+    function validLogin(){
+		axios.post('${pageContext.request.contextPath}/userinfo/isLogin', {}, {
+		})
+		 .then(function (resData) {
+			 valid(resData['data']);
+		 })
+	}
+	
+	function valid(userId) {
+		if(userId == '' || userId.length == 0) {
+		}else{
+			document.getElementById("logout_btn").style.display="block";
+			document.getElementById("login_btn").style.display="none";
+		}
+	}
+	</script>
 
 	<!-- 헤더 -->
     <div class="header">
         <div class="container">
             <div class="row">
             
-
                 <div class="col-md-3 col-sm-4">
+
                     <div class="logo">
-                        <a href="../homepage.jsp"><img src="../images/HTAlogo.png" alt="Orani E-shop" style="width:60%;height:auto;"></a>
+                        <a href="${pageContext.request.contextPath}/homepage.html"><img src="../images/HTAlogo.png" alt="Orani E-shop" style="width:60%;height:auto;"></a>
+
                     </div>
                 </div>
-
 
                 <div class="col-md-7 col-sm-5">
                     <div class="search-form">
@@ -88,7 +114,6 @@
                         </form>
                     </div>
                 </div>
-
 
                 <div class="col-md-2 col-sm-3">
                     <div class="cart">
@@ -105,7 +130,6 @@
             </div>
         </div>
     </div>
-
 
 	<!-- 네비게이션 바 -->
      <div class="navigation">
@@ -128,7 +152,6 @@
                    	 전체 카테고리 <span class="caret"></span>
                   </button>
 
-
                   <ul class="dropdown-menu">
                     
                    	<li><a href="${pageContext.request.contextPath }/category/list?cat=fruit">과일</a></li>
@@ -143,12 +166,7 @@
                 </div>
             </div>
 
-
-
-
 			<!-- 네비게이션 바 오른쪽 클릭 + 하이퍼링크 -->
-
-
             <div class="collapse navbar-collapse" id="navbar">
               <ul class="nav navbar-nav navbar-right">
                 <li><a href="???">신상품</a></li>
@@ -162,8 +180,8 @@
         </nav>
     </div>
     
-    <div class="List">
     
+    <div class="List">
 		<!-- Section-->
         <section class="py-5">
         		<c:choose>
@@ -172,13 +190,10 @@
 		         		
 		                <div class="row1 gx-4 gx-lg-5 row1-cols-2 row1-cols-md-3 row1-cols-xl-4 justify-content-center">
 		                
-		                
 		                	<c:forEach items="${requestScope.productallData}" var="pvo">
 		                		
 								<div class="col mb-5">
-								
-		                        <div class="card h-100">
-		                        
+		                         <div class="card h-100">
 		                            <!-- Product image-->	
 		                            <div>
 		                            <a href="${pageContext.request.contextPath}/${pvo.productImg}" data-lightbox="example-set" data-title="${pvo.productName}">
@@ -247,8 +262,8 @@
 						</c:choose>
                  </section>   
                 </div>
-            
 	
+	<!-- 최하단 푸터 -->	
 	<div class="footer">
         <div class="container">
             <div class="row">
@@ -296,24 +311,18 @@
     </div>
 	
 	<!-- jQuery Library -->
-
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 
 	<!-- Latest compiled and minified JavaScript -->
-
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 	<!-- Script -->
-
 	<script src="../js/script.js"></script>
-	
 	<script src="../js/scripts.js"></script> 
 	
 	<!-- 이미지 클릭시 확대 관련 import  -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
-	
-	<!-- javascript:test()--------------------------------- -->
 	
 </body>
 

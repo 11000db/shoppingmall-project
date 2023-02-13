@@ -18,6 +18,7 @@ public class UserDAO {
 	public void createUser(User user) throws Exception {
 		EntityManager em = DBUtil.getEntityManager();
 		EntityTransaction tx = em.getTransaction();
+
 		try {
 			tx.begin();
 			
@@ -29,6 +30,21 @@ public class UserDAO {
 			em.close();
 		}
 	}
+	
+	public boolean checkId(String userId) throws Exception {
+        EntityManager em = DBUtil.getEntityManager();
+
+        try {
+            String query = "SELECT COUNT(u) FROM User u WHERE u.userId = :userId";
+            Long count = em.createQuery(query, Long.class)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+
+            return count == 0;
+        } finally {
+            em.close();
+        }
+    }
 
 	public boolean validateUser(String userId, String userPassword) throws Exception{
 		EntityManager em = DBUtil.getEntityManager();
@@ -71,6 +87,16 @@ public class UserDAO {
 			em.close();
 		}
 	
-	
+	public User selectOneUser(String userId) {
+		EntityManager em = DBUtil.getEntityManager();
+		
+		String sql = "select u from User u where u_id = :u_id";
+		
+		User user = (User) em.createQuery(sql)
+				.setParameter("u_id", userId)
+				.getSingleResult();
+		
+		return user;
+	}
 	
 }

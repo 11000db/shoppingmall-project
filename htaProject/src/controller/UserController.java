@@ -1,14 +1,9 @@
 package controller;
 
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import javax.servlet.http.HttpSession;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,56 +18,76 @@ import model.domain.entity.User;
 
 @RestController
 @RequestMapping("userinfo")
-@SessionAttributes({"userId", "userPassword" })
-public class UserController {
+@SessionAttributes({ "userId" })
+public class UserController<user> {
 
 	@Autowired
 	public UserDAO userDAO;
 
 	@PostMapping(value="/createUser", produces = "application/json;charset=utf-8")	
-	protected String createUser(User user) throws Exception{
-		
-		userDAO.createUser(user);
-		return "회원 가입 성공";
-	}
+	public ModelAndView createUser(User user) throws Exception{
+  
+		ModelAndView mv = new ModelAndView();		
+		boolean check = userDAO.checkId(user.getUserId());
 	
+		if(check == true) {
+			userDAO.createUser(user);
+			mv.setViewName("redirect:/login.html");
+		}else {
+			mv.addObject("errorMessage", "이미 존재하는 아이디입니다.");		
+			mv.setViewName("error");
+		}
+		return mv;
+	}
 
-	@PostMapping(value = "/login")
-	public ModelAndView login(Model sessionData,@RequestParam String userId,
-			@RequestParam String userPassword, HttpServletResponse response, HttpServletRequest request)
-			throws Exception {
-		System.out.println(userId + " " + userPassword);
-		response.setContentType("text/html; charset=utf-8");
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public ModelAndView login(@RequestParam String userId, @RequestParam String userPassword) throws Exception {
+
+		System.out.println("userId " + userId);
 
 		boolean valid = userDAO.validateUser(userId, userPassword);
 
 		ModelAndView mv = new ModelAndView();
-		
 		if (valid == true) {
-			System.out.println("로그인 성공");
-			sessionData.addAttribute("userId", userId);
-			mv.addObject("loginId_model", "model data");
-//			response.sendRedirect("/htaProject/sessionId.jsp");
-			mv.setViewName("sessionId");
+
+			mv.addObject("userId", userId);
+			mv.setViewName("redirect:/homepage.html");
+			return mv;
+
 		} else {
-			System.out.println("로그인 실패");
-			PrintWriter out = response.getWriter();
-			out.print("<script> alert('로그인 실패'); location.href='" + "/htaProject/login.jsp" + "'; </script>");
-			// response.sendRedirect("/htaProject/login.html");
+			return mv;
 		}
+
+	}
+
+	@RequestMapping(value = "/sessionOut", method = RequestMethod.GET)
+	public ModelAndView sessionOut(SessionStatus status, HttpSession session) throws Exception {
+
+		status.setComplete();
+		status = null;
+
+		System.out.println(session.getAttribute("userId"));
+		System.out.println("session 삭제 성공");
+
+		ModelAndView mv = new ModelAndView();
+
+		mv.setViewName("redirect:/homepage.html");
 
 		return mv;
 	}
-
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
-	public String logout(SessionStatus status, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		
-		System.out.println("로그아웃 성공");
-		status.setComplete();
-		status = null;
-		
-		return "redirect:/login.html";	
+	
+	@RequestMapping(value = "/isLogin1", method = RequestMethod.POST)
+	public String isLogin1(HttpSession session) throws Exception {
+		System.out.println("******* islogin");
+		return (String) session.getAttribute("userId");
 	}
-
+	
+	@RequestMapping(value = "/isLogin", method = RequestMethod.POST)
+	public String isLogin(Model model) throws Exception {
+		String userId = (String) model.getAttribute("userId");
+		
+		return userId;
+	}
+	
+	
 }

@@ -7,7 +7,9 @@
 <title>Insert title here</title>
 </head>
 <body>
-
-	--현재 세션에서 로그인아웃 아이디:${sessionScope.userId}
+<script type="text/javascript">
+	alert('${errorMessage}');
+	window.location.href = "${pageContext.request.contextPath}/login.html";
+</script>
 </body>
 </html>
